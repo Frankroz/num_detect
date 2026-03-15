@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 import onnxruntime as ort
@@ -6,6 +7,8 @@ import base64
 from io import BytesIO
 from PIL import Image
 from utils import preprocess_image
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 
@@ -18,9 +21,10 @@ except Exception as e:
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=[os.getenv("FRONTEND_URL")],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 @app.get("/")
