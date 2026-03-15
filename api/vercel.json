@@ -1,15 +1,9 @@
 {
-  "devCommand": "uvicorn api.index:app --reload",
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "api/index.py"
+      "src": "/predict",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/index.py"
     }
   ]
 }

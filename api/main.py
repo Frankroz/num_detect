@@ -12,19 +12,24 @@ load_dotenv()
 
 app = FastAPI()
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, "..", "models", "mnist_model.onnx")
+
 try:
-    session = ort.InferenceSession("./models/mnist_model.onnx")
+    session = ort.InferenceSession(model_path)
     input_name = session.get_inputs()[0].name
 except Exception as e:
-    print(f"Error loading ONNX model: {e}")
+    print(f"CRITICAL: Model load failed: {e}")
+    # Don't let it crash here, or CORS will never be sent
+    session = None
 
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[os.getenv("FRONTEND_URL")],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
