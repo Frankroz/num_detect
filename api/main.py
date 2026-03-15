@@ -26,7 +26,7 @@ except Exception as e:
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL")],
+    allow_origins=["*"], # Allow all for now to confirm the model loads
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
