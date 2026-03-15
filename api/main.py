@@ -12,26 +12,23 @@ load_dotenv()
 
 app = FastAPI()
 
-# Get the directory of the current file (api/index.py)
 current_dir = os.path.dirname(os.path.abspath(__file__))
-# Look for the model in the SAME directory
-model_path = os.path.join(current_dir, "mnist_model.onnx")
+model_path = os.path.join(current_dir, "..", "models", "mnist_model.onnx")
 
 try:
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model not found at {model_path}")
     session = ort.InferenceSession(model_path)
     input_name = session.get_inputs()[0].name
 except Exception as e:
     print(f"CRITICAL: Model load failed: {e}")
+    # Don't let it crash here, or CORS will never be sent
     session = None
 
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all for now to confirm the model loads
+    allow_origins=[os.getenv("FRONTEND_URL")],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 

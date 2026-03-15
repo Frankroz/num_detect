@@ -1,21 +1,32 @@
 import React, { useRef, useState } from "react";
 import { ReactSketchCanvas } from "react-sketch-canvas";
-import { Eraser, BrainCircuit, RefreshCw } from "lucide-react";
+import { Eraser, BrainCircuit, RefreshCw, AlertCircle } from "lucide-react";
 import { predictDigit } from "../services/api";
 
 const DigitCanvas = () => {
   const canvasRef = useRef(null);
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handlePredict = async () => {
     setLoading(true);
+    setError(null);
+
     try {
       const image = await canvasRef.current.exportImage("png");
       const result = await predictDigit(image);
-      setPrediction(result.prediction);
+
+      if (result.error) {
+        setError(result.error);
+        setPrediction(null);
+      } else {
+        setPrediction(result.prediction);
+      }
     } catch (err) {
       console.error("Prediction failed", err);
+      setError("Unable to connect to the server. Is the backend running?");
+      setPrediction(null);
     } finally {
       setLoading(false);
     }
@@ -24,6 +35,7 @@ const DigitCanvas = () => {
   const handleClear = () => {
     canvasRef.current.clearCanvas();
     setPrediction(null);
+    setError(null);
   };
 
   return (
@@ -63,7 +75,16 @@ const DigitCanvas = () => {
         </button>
       </div>
 
-      {prediction !== null && (
+      {/* Error Message Display */}
+      {error && (
+        <div className="flex items-center gap-2 p-4 mb-4 text-red-400 bg-red-950/30 border border-red-500/50 rounded-xl animate-in fade-in slide-in-from-top-2">
+          <AlertCircle size={20} />
+          <p className="text-sm font-medium">{error}</p>
+        </div>
+      )}
+
+      {/* Prediction Result Display */}
+      {prediction !== null && !error && (
         <div className="text-center animate-in fade-in zoom-in duration-300">
           <p className="text-slate-400 text-sm font-mono tracking-tighter uppercase">
             Result
