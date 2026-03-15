@@ -13,7 +13,7 @@ load_dotenv()
 app = FastAPI()
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(current_dir, "..", "models", "mnist_model.onnx")
+model_path = os.path.join(current_dir, "models", "mnist_model.onnx")
 
 try:
     session = ort.InferenceSession(model_path)
